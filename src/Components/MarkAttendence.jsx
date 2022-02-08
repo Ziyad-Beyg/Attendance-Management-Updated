@@ -1,34 +1,12 @@
 import React, { useState, useEffect } from "react";
-// import DatePicker from "react-bootstrap-date-picker"
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 
-const MarkAttendence = ({student}) => {
-      // console.log(student)
-      // let Alldata = [student];
-      const [Date, setDate] = useState(null);
-      const [AttendenceStatus, setAttendenceStatus] = useState(null);
-      let [value,setValue] = useState([]);
-      // let arrClone = value.slice(0);
-      // arrClone.push(student)
-      // setValue(arrClone);
-
-      // console.log(value)
-useEffect(() => {
-  // console.log(student) 
-  if(student !== {}){
-  let arrClone = value.slice(0);
-  arrClone.push(student)
-  setValue(arrClone);
-}
-  else{
-    // console.log("student is empty")
-  }
-}, [student]);
-
-// useEffect(() => {
-  
-//   // console.log(value)
-// }, [value]);
-
+const MarkAttendence = ({ students }) => {
+  const [Date, setDate] = useState("");
+  const [AttendenceStatus, setAttendenceStatus] = useState(null);
+  let [value, setValue] = useState("");
   return (
     <div
       className="container"
@@ -40,7 +18,7 @@ useEffect(() => {
         padding: "40px",
       }}
     >
-     <h1 style={{ padding: "20px 0px" }}>Mark Attendence 5-02-2022</h1>
+      <h1 style={{ padding: "20px 0px" }}>Mark Attendence 5-02-2022</h1>
       <table className="table" style={{ width: "80%" }}>
         <thead>
           <tr>
@@ -56,23 +34,32 @@ useEffect(() => {
           </tr>
         </thead>
         <tbody>
-          {
-            value.map((data, index)=>{
-              console.log(data)
-              if(index !== 0 ){
-                return(
-                  <tr key={index}>
-                <th scope="row">{index }</th>
+          {students.map((data, index) => {
+            // if (index !== 0) {
+            return (
+              <tr key={data._id}>
+                <th scope="row">{index + 1}</th>
                 <td>{data.Name}</td>
                 <td>{data.Course}</td>
                 <td>{data.Semester}</td>
                 <td>{data.RollNo}</td>
                 <td>{data.Batch}</td>
                 <td>
-                {/* DATE PICKER */}
-                <input type="date" value={Date} onChange={e => setDate(e.target.value)}  />
+                  <DatePicker
+                    selected={Date}
+                    onChange={(date) => setDate(date)}
+                    dateFormat="dd/MM/yyy"
+                    isClearable
+                  />
                 </td>
-                <td style={{paddingTop:'15px', paddingBottom: '15px',  display: "flex", justifyContent: "space-evenly" }}>
+                <td
+                  style={{
+                    paddingTop: "15px",
+                    paddingBottom: "15px",
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                  }}
+                >
                   <button
                     type="button"
                     className="btn btn-success"
@@ -84,13 +71,13 @@ useEffect(() => {
                       justifyContent: "center",
                       alignItems: "center",
                     }}
-                    onClick={()=>{
-                      setAttendenceStatus("PRESENT")
+                    onClick={() => {
+                      setAttendenceStatus("PRESENT");
                     }}
                   >
                     P
                   </button>
-    
+
                   <button
                     type="button"
                     className="btn btn-danger"
@@ -102,8 +89,8 @@ useEffect(() => {
                       justifyContent: "center",
                       alignItems: "center",
                     }}
-                    onClick={()=>{
-                      setAttendenceStatus("ABSENT")
+                    onClick={() => {
+                      setAttendenceStatus("ABSENT");
                     }}
                   >
                     A
@@ -120,40 +107,63 @@ useEffect(() => {
                       justifyContent: "center",
                       alignItems: "center",
                     }}
-                    onClick={()=>{
-                      setAttendenceStatus("LATE")
+                    onClick={() => {
+                      setAttendenceStatus("LATE");
                     }}
                   >
                     L
                   </button>
                 </td>
                 <td>
-                <button
+                  <button
                     type="button"
                     className="btn btn-primary"
                     style={{
-                      // width: "10px",
-                      // height: "25px",
-                      // borderRadius: "50%",
-                      padding:'5px',
+                      padding: "5px",
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
                     }}
+                    onClick={() => {
+                      let obj = {
+                        id: data._id,
+                        attendence: AttendenceStatus,
+                        date: Date,
+                      };
+                      if (
+                        data._id !== "" &&
+                        AttendenceStatus !== "" &&
+                        Date !== ""
+                      ) {
+                        axios
+                          .post("http://localhost:8000/attendence", obj)
+                          .then((res) => {
+                            console.log(res);
+                          })
+                          .catch((e) => {
+                            console.log(e);
+                          });
+                      } else {
+                        setValue("Fill all Detalis");
+                      }
+                    }}
                   >
                     SUBMIT
                   </button>
+                  <span
+                    style={{
+                      color: "red",
+                    }}
+                  >
+                    {value}
+                  </span>
                 </td>
               </tr>
-                  )
-              }
-              else{
-                console.log("DATA IS EMPTY!!!")
-              }
-              
-            }) 
-          }
-          
+            );
+            // } else {
+            //   console.log("DATA IS EMPTY!!!");
+            // }
+          })}
         </tbody>
       </table>
     </div>
